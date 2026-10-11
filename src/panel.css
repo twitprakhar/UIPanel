@@ -1,0 +1,56 @@
+.uipanel {
+  font-family: system-ui, sans-serif;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.uipanel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f6f8fa;
+  border-bottom: 1px solid #d0d7de;
+  user-select: none;
+}
+
+.uipanel-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.uipanel-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.uipanel-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.uipanel-btn:hover {
+  background: #e1e4e8;
+}
+
+.uipanel-body {
+  padding: 12px;
+  font-size: 14px;
+}
+
+.uipanel.collapsed .uipanel-body {
+  display: none;
+}
+
+.uipanel.collapsed .uipanel-header {
+  border-bottom: none;
+}
