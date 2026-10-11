@@ -13,25 +13,35 @@ export class UIPanel {
   }
 
   _build(content) {
-    const el = document.createElement('div');
+    const el = document.createElement('section');
     el.className = 'uipanel';
     el.id = this.id;
 
     const header = document.createElement('div');
     header.className = 'uipanel-header';
 
-    const title = document.createElement('span');
+    const title = document.createElement('h3');
     title.className = 'uipanel-title';
-    title.innerHTML = this.title;
+    title.id = this.id + '-title';
+    title.textContent = this.title;
     header.appendChild(title);
+    el.setAttribute('aria-labelledby', title.id);
 
     const actions = document.createElement('div');
     actions.className = 'uipanel-actions';
 
+    const body = document.createElement('div');
+    body.className = 'uipanel-body';
+    body.id = this.id + '-body';
+
     if (this.collapsible) {
       const btn = document.createElement('button');
+      btn.type = 'button';
       btn.className = 'uipanel-btn uipanel-toggle';
       btn.textContent = this.collapsed ? '+' : '-';
+      btn.setAttribute('aria-label', 'Toggle ' + this.title);
+      btn.setAttribute('aria-controls', body.id);
+      btn.setAttribute('aria-expanded', String(!this.collapsed));
       btn.addEventListener('click', () => this.toggle());
       actions.appendChild(btn);
       this.toggleBtn = btn;
@@ -39,17 +49,19 @@ export class UIPanel {
 
     if (this.closable) {
       const btn = document.createElement('button');
+      btn.type = 'button';
       btn.className = 'uipanel-btn uipanel-close';
       btn.textContent = 'x';
+      btn.setAttribute('aria-label', 'Close ' + this.title);
       btn.addEventListener('click', () => this.close());
       actions.appendChild(btn);
+
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Escape') this.close();
+      });
     }
 
     header.appendChild(actions);
-
-    const body = document.createElement('div');
-    body.className = 'uipanel-body';
-
     el.appendChild(header);
     el.appendChild(body);
 
@@ -59,7 +71,10 @@ export class UIPanel {
     this.body = body;
 
     if (content) this.setContent(content);
-    if (this.collapsed) el.classList.add('collapsed');
+    if (this.collapsed) {
+      el.classList.add('collapsed');
+      body.hidden = true;
+    }
   }
 
   mount(parent) {
@@ -72,10 +87,11 @@ export class UIPanel {
 
   setTitle(text) {
     this.title = text;
-    this.titleEl.innerHTML = text;
+    this.titleEl.textContent = text;
     return this;
   }
 
+  // strings are treated as html on purpose, pass a Node if the content is untrusted
   setContent(content) {
     if (content instanceof Node) {
       this.body.innerHTML = '';
@@ -90,7 +106,9 @@ export class UIPanel {
     if (!this.collapsible || this.collapsed) return this;
     this.collapsed = true;
     this.el.classList.add('collapsed');
+    this.body.hidden = true;
     this.toggleBtn.textContent = '+';
+    this.toggleBtn.setAttribute('aria-expanded', 'false');
     this.emit('collapse');
     return this;
   }
@@ -99,7 +117,8 @@ export class UIPanel {
     if (!this.collapsed) return this;
     this.collapsed = false;
     this.el.classList.remove('collapsed');
-    this.toggleBtn.textContent = '-';
+    this.body.hidden = false;
+    if (this.toggleBtn) this.toggleBtn.textContent = '-';
     this.emit('expand');
     return this;
   }
