@@ -1,0 +1,11 @@
+{
+  "name": "uipanel",
+  "version": "0.2.0",
+  "description": "Small vanilla JS collapsible panels",
+  "type": "module",
+  "main": "src/panel.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
