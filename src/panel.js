@@ -1,4 +1,4 @@
-import { uid } from './utils.js';
+import { uid, clamp } from './utils.js';
 
 export class UIPanel {
   constructor(opts = {}) {
@@ -7,8 +7,15 @@ export class UIPanel {
     this.collapsible = opts.collapsible !== false;
     this.closable = !!opts.closable;
     this.collapsed = !!opts.collapsed;
+    this.draggable = !!opts.draggable;
     this.handlers = {};
     this.el = null;
+    this._drag = null;
+
+    this._startDrag = this._startDrag.bind(this);
+    this._onDragMove = this._onDragMove.bind(this);
+    this._onDragEnd = this._onDragEnd.bind(this);
+
     this._build(opts.content);
   }
 
@@ -60,6 +67,11 @@ export class UIPanel {
 
     if (content) this.setContent(content);
     if (this.collapsed) el.classList.add('collapsed');
+
+    if (this.draggable) {
+      el.classList.add('uipanel-draggable');
+      header.addEventListener('pointerdown', this._startDrag);
+    }
   }
 
   mount(parent) {
@@ -84,6 +96,47 @@ export class UIPanel {
       this.body.innerHTML = content;
     }
     return this;
+  }
+
+  moveTo(x, y) {
+    this.el.style.position = 'fixed';
+    this.el.style.left = x + 'px';
+    this.el.style.top = y + 'px';
+    return this;
+  }
+
+  _startDrag(e) {
+    if (e.button !== 0 || e.target.closest('.uipanel-btn')) return;
+
+    const rect = this.el.getBoundingClientRect();
+    this._drag = { dx: e.clientX - rect.left, dy: e.clientY - rect.top };
+
+    // keep the width it had in the normal flow
+    this.el.style.width = rect.width + 'px';
+    this.moveTo(rect.left, rect.top);
+    this.el.classList.add('dragging');
+
+    document.addEventListener('pointermove', this._onDragMove);
+    document.addEventListener('pointerup', this._onDragEnd);
+    e.preventDefault();
+  }
+
+  _onDragMove(e) {
+    if (!this._drag) return;
+    const maxX = window.innerWidth - this.el.offsetWidth;
+    const maxY = window.innerHeight - this.header.offsetHeight;
+    const x = clamp(e.clientX - this._drag.dx, 0, maxX);
+    const y = clamp(e.clientY - this._drag.dy, 0, maxY);
+    this.moveTo(x, y);
+    this.emit('move', x, y);
+  }
+
+  _onDragEnd() {
+    this._drag = null;
+    this.el.classList.remove('dragging');
+    document.removeEventListener('pointermove', this._onDragMove);
+    document.removeEventListener('pointerup', this._onDragEnd);
+    this.emit('dragend', parseInt(this.el.style.left), parseInt(this.el.style.top));
   }
 
   collapse() {

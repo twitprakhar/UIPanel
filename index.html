@@ -23,6 +23,10 @@
       .mount('#app');
 
     new UIPanel({ title: 'Logs', content: '<pre>nothing yet</pre>', collapsed: true }).mount('#app');
+
+    new UIPanel({ title: 'Drag me', content: '<p>Grab the header to move this one around.</p>', draggable: true, closable: true })
+      .on('dragend', (x, y) => console.log('dropped at', x, y))
+      .mount('#app');
   </script>
 </body>
 </html>
