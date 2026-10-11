@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UIPanel demo</title>
+  <link rel="stylesheet" href="src/panel.css">
+  <style>
+    body { background: #eef1f4; padding: 30px; }
+    #app { max-width: 600px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { UIPanel } from './src/panel.js';
+
+    new UIPanel({ title: 'Profile', content: '<p>Some profile info here.</p>' }).mount('#app');
+
+    new UIPanel({ title: 'Settings', content: '<p>Settings go here</p>', closable: true })
+      .on('close', () => console.log('settings closed'))
+      .mount('#app');
+
+    new UIPanel({ title: 'Logs', content: '<pre>nothing yet</pre>', collapsed: true }).mount('#app');
+  </script>
+</body>
+</html>
